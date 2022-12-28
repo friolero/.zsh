@@ -99,7 +99,8 @@ plugins=(git)
 # Example aliases
 alias zshcfg="vim ~/.zsh/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
-alias antigencfg="vim ~/.zsh/.antegenrc"
+alias antigencfg="vim ~/.zsh/.antigenrc"
+alias pblt_env="source ~/Projects/virtualenvs/pybullet/bin/activate"
 #
 source $HOME"/.zsh/antigen.zsh"
 antigen init $HOME"/.zsh/.antigenrc"
