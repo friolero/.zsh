@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$PATH:$HOME/.local/bin
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -91,22 +91,21 @@ plugins=(git)
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
+source $HOME"/.zsh/antigen.zsh"
+antigen init $HOME"/.zsh/.antigenrc"
+
+
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
-# Example aliases
 alias zshcfg="vim ~/.zsh/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
 alias antigencfg="vim ~/.zsh/.antigenrc"
 alias pblt_env="source ~/Projects/virtualenvs/pybullet/bin/activate"
-#
-source $HOME"/.zsh/antigen.zsh"
-antigen init $HOME"/.zsh/.antigenrc"
-
-# ubuntu
-#alias del="trash-put"
-#alias gpu='gpustat --watch'
-#alias rmcache="sudo sync && sudo sysctl -w vm.drop_caches=3"
-#alias clean='docker container prune --filter "until=72h"  && docker rmi -f $(docker images -f "dangling=true" -q) '
+alias l="ls -lt"
+alias del="trash-put"
+alias rmcache="sudo sync && sudo sysctl -w vm.drop_caches=3"
+alias gpu="gpustat --watch"
+alias clean="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
