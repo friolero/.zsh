@@ -109,3 +109,5 @@ alias del="trash-put"
 alias rmcache="sudo sync && sudo sysctl -w vm.drop_caches=3"
 alias gpu="gpustat --watch"
 alias clean="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
+alias size="du -sch .[!.]* * |sort -h"
+

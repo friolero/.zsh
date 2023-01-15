@@ -1,4 +1,4 @@
-## Usage: Install oh my zsh with antigen
+## Usage: Install oh-my-zsh with antigen
 ```
 sudo apt-get update
 sudo apt-get install zsh curl
@@ -15,11 +15,13 @@ ln -sf ~/.zsh/.zshrc
 
 ### install trash
 ```
+sudo apt-get update
 sudo apt-get install trash-cli
 ```
 
 ### install gpustat
 ```
+# install pip if not already installed
 pip install gpustat 
 ```
 
