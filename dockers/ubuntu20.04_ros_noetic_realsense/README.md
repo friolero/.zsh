@@ -16,3 +16,8 @@ Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
 >> lsusb -D /dev/bus/usb/004/002 | grep "bcdUSB"
   bcdUSB               3.20
 ```
+
+Example ROS launching:
+```
+roslaunch realsense2_camera rs_camera.launch camera:=movo align_depth:=true
+```

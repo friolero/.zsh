@@ -44,13 +44,6 @@ RUN apt-get update && \
         librealsense2-utils \
         librealsense2-dev \
         librealsense2-udev-rules
-RUN mkdir -p /tmp/catkin_ws/src && \
-    cd /tmp/catkin_ws/src  && \
-    git clone https://github.com/IntelRealSense/realsense-ros.git && \
-    cd realsense-ros && \
-    git checkout `git tag | sort -V | grep -P "^2.\d+\.\d+" | tail -1`  && \
-    cd /tmp/catkin_ws/src 
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin_init_workspace /tmp/catkin_ws/src; cd /tmp/catkin_ws; catkin_make clean; catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release; catkin_make install"
 
 # setup ssh key for git cloning private repos later in a inelegant way
 RUN mkdir /root/.ssh
@@ -73,8 +66,22 @@ RUN adduser \
     $USERNAME
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-# setup zsh
+# setup vim
 WORKDIR /home/$USERNAME
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+       black \
+       pylint \ 
+       flake8 \ 
+       isort \
+       pycodestyle \
+       pydocstyle \
+       clang-format \
+       clang-tidy 
+RUN git clone --recursive git@github.com:friolero/.vim.git && \
+    chown -R $USERNAME: /home/$USERNAME/.vim
+
+# setup zsh
 RUN mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
     echo \
@@ -97,26 +104,20 @@ RUN git clone git@github.com:friolero/.zsh.git && \
     ln -sf /home/$USERNAME/.zsh/.zshrc /home/$USERNAME/.zshrc && \
     chown -R $USERNAME: /home/$USERNAME/.zsh  
 
-# source ros and realsense_ros in zshby default
-RUN echo "source /opt/ros/${ROS_DISTRO}/setup.zsh" >> /home/$USERNAME/.zshrc
-RUN mv /tmp/catkin_ws /home/$USERNAME && chown -R $USERNAME: /home/$USERNAME/catkin_ws
-RUN echo "source /home/$USERNAME/catkin_ws/devel/setup.zsh" >> /home/$USERNAME/.zshrc
-
-# setup vim
-RUN apt-get update && \
-    apt-get -y install --no-install-recommends \
-       black \
-       pylint \ 
-       flake8 \ 
-       isort \
-       pycodestyle \
-       pydocstyle \
-       clang-format \
-       clang-tidy 
-RUN git clone --recursive git@github.com:friolero/.vim.git && \
-    chown -R $USERNAME: /home/$USERNAME/.vim
-
 # install vundle plugin
 USER $USERNAME
 RUN /bin/bash -c "ln -sf /home/$USERNAME/.vim/.vimrc /home/$USERNAME; python3 /home/$USERNAME/.vim/bundle/YouCompleteMe/install.py; vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')"
+
+# build realsense_ros
+RUN mkdir -p /home/$USERNAME/catkin_ws/src && \
+    cd /home/$USERNAME/catkin_ws/src  && \
+    git clone https://github.com/IntelRealSense/realsense-ros.git && \
+    cd realsense-ros && \
+    git checkout `git tag | sort -V | grep -P "^2.\d+\.\d+" | tail -1`  
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin_init_workspace /home/$USERNAME/catkin_ws/src; cd /home/$USERNAME/catkin_ws; catkin_make clean; catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release; catkin_make install"
+
+# source ros and realsense_ros in zsh by default
 RUN /bin/zsh /home/$USERNAME/.zshrc
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.zsh" >> /home/$USERNAME/.zshrc
+RUN echo "source /home/$USERNAME/catkin_ws/devel/setup.zsh" >> /home/$USERNAME/.zshrc
+
