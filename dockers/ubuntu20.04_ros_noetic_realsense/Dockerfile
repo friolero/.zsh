@@ -42,7 +42,8 @@ RUN apt-get update && \
     apt-get -y install --no-install-recommends \ 
         librealsense2-dkms \
         librealsense2-utils \
-        librealsense2-dev 
+        librealsense2-dev \
+        librealsense2-udev-rules
 RUN mkdir -p /tmp/catkin_ws/src && \
     cd /tmp/catkin_ws/src  && \
     git clone https://github.com/IntelRealSense/realsense-ros.git && \
@@ -51,14 +52,14 @@ RUN mkdir -p /tmp/catkin_ws/src && \
     cd /tmp/catkin_ws/src 
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin_init_workspace /tmp/catkin_ws/src; cd /tmp/catkin_ws; catkin_make clean; catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release; catkin_make install"
 
-# setup ssh key for private repo git clone later in a inelegant way
+# setup ssh key for git cloning private repos later in a inelegant way
 RUN mkdir /root/.ssh
 ADD id_ed25519 /root/.ssh/id_ed25519
 RUN touch /root/.ssh/known_hosts
 RUN ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 
 # create local user 
-# to conclude if this is really better than directly using root later
+# to conclude if this is really better than to directly use root later
 ARG USERNAME
 ARG UID
 ARG RSA_FOLDER
@@ -72,23 +73,34 @@ RUN adduser \
     $USERNAME
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-
 # setup zsh
 WORKDIR /home/$USERNAME
+RUN mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    chmod a+r /etc/apt/keyrings/docker.gpg
 RUN apt-get update && \
     apt-get -y install --no-install-recommends \
        fonts-powerline \
        trash-cli \
-       docker 
+       ca-certificates \
+       curl \
+       gnupg \
+       lsb-release \
+       docker-ce \
+       docker-ce-cli \
+       containerd.io 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 RUN git clone git@github.com:friolero/.zsh.git && \
     ln -sf /home/$USERNAME/.zsh/.zshrc /home/$USERNAME/.zshrc && \
-    chown -R $USERNAME: /home/$USERNAME/.zsh 
+    chown -R $USERNAME: /home/$USERNAME/.zsh  
 
 # source ros and realsense_ros in zshby default
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.zsh" >> /home/$USERNAME/.zshrc
 RUN mv /tmp/catkin_ws /home/$USERNAME && chown -R $USERNAME: /home/$USERNAME/catkin_ws
-RUN echo "source /home/$USERNAME/catkin_ws/setup.zsh" >> /home/$USERNAME/.zshrc
+RUN echo "source /home/$USERNAME/catkin_ws/devel/setup.zsh" >> /home/$USERNAME/.zshrc
 
 # setup vim
 RUN apt-get update && \
@@ -107,3 +119,4 @@ RUN git clone --recursive git@github.com:friolero/.vim.git && \
 # install vundle plugin
 USER $USERNAME
 RUN /bin/bash -c "ln -sf /home/$USERNAME/.vim/.vimrc /home/$USERNAME; python3 /home/$USERNAME/.vim/bundle/YouCompleteMe/install.py; vim -T dumb -n -i NONE -es -S <(echo -e 'silent! PluginInstall')"
+RUN /bin/zsh /home/$USERNAME/.zshrc
