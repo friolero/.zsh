@@ -109,6 +109,15 @@ alias del="trash-put"
 #alias rm="echo 'rm disabled, please use del instead'"
 alias rmcache="sudo sync && sudo sysctl -w vm.drop_caches=3"
 alias gpu="gpustat --watch"
-alias clean="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
+#alias clean="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
 alias size="du -sch .[!.]* * |sort -h"
 
+
+#export VULKAN_SDK=/home/ubuntu/SW/1.3.243.0/x86_64
+#export PATH=$VULKAN_SDK/bin:/usr/local/cuda/bin:$PATH
+#export LD_LIBRARY_PATH=$VULKAN_SDK/lib:/usr/local/cuda/lib64:/usr/local/lib:$LD_LIBRARY_PATH
+#export VK_ADD_LAYER_PATH=$VULKAN_SDK/etc/vulkan/explicit_layer.di:$VK_ADD_LAYER_PATH
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/lib:$LD_LIBRARY_PATH
+export LLVM_DIR=$HOME/SW/llvm-project-llvmorg-15.0.5/llvm
+export TAICHI_CMAKE_ARGS="$TAICHI_CMAKE_ARGS -DTI_WITH_VULKAN:BOOL=ON"
