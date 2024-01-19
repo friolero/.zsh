@@ -108,9 +108,13 @@ alias l="ls -lt"
 alias del="trash-put"
 #alias rm="echo 'rm disabled, please use del instead'"
 alias rmcache="sudo sync && sudo sysctl -w vm.drop_caches=3"
+alias gitpurge="git branch --merged | grep -v "\*" | grep -v "master" | grep -v "develop" | grep -v "staging" | xargs -n 1 git branch -d"
 alias gpu="gpustat --watch"
-#alias clean="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
+#alias dockerpurge="docker container prune --filter 'until=72h'  && docker rmi -f $(docker images -f 'dangling=true' -q)"
 alias size="du -sch .[!.]* * |sort -h"
-
+alias zot="/home/zyuwei/SW/Zotero_linux-x86_64/zotero"
+alias python=$(which python3)
+alias igym="cd /home/zyuwei/Projects/sandbox/IsaacGymEnvs/isaacgymenvs"
+alias rlg="cd /home/zyuwei/Projects/sandbox/rl_games/rl_games"
 
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
